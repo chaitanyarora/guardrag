@@ -6,7 +6,7 @@ from app.services.llm_service import LLMService
 class RAGService:
     def __init__(self):
         self.vector_store = VectorStore()
-        self.llm_service = LLMService(model="llama-3.1-8b-instant")
+        self.llm_service = LLMService()
 
     def answer(self, query: str, role: str):
         allowed_departments = get_allowed_departments(role)

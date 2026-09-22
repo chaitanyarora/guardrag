@@ -8,8 +8,8 @@ from app.services.vector_store import VectorStore
 from app.services.rag_service import RAGService
 
 app = FastAPI(
-    title="FinSolve Internal AI Assistant",
-    description="Role-Based RAG Chatbot",
+    title="GuardRAG: Enterprise RBAC AI Assistant",
+    description="Role-Based Access Control (RBAC) Retrieval-Augmented Generation System",
     version="0.1.0",
 )
 

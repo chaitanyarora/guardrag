@@ -6,8 +6,8 @@ API_URL = "http://127.0.0.1:8000"
 
 
 st.set_page_config(
-    page_title="FinSolve AI Assistant",
-    page_icon="🤖",
+    page_title="GuardRAG AI Assistant",
+    page_icon="🛡️",
     layout="wide",
 )
 
@@ -86,7 +86,7 @@ if "messages" not in st.session_state:
 
 if not st.session_state.authenticated:
 
-    st.title("🤖 FinSolve Internal AI Assistant")
+    st.title("🛡️ GuardRAG: AI Assistant")
     st.caption("Role-Based Retrieval-Augmented Generation")
 
     st.divider()
@@ -147,7 +147,7 @@ if not st.session_state.authenticated:
 
 with st.sidebar:
 
-    st.title("FinSolve AI")
+    st.title("🛡️ GuardRAG")
 
     st.success(
         f"Logged in as {st.session_state.username}"
