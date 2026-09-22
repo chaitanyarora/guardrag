@@ -1,10 +1,11 @@
 from pathlib import Path
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pandas as pd
 
-
-DATA_DIR = Path("resources/data")
+# Resolve base directory dynamically regardless of CWD
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = BASE_DIR / "resources" / "data"
+HR_CSV_PATH = DATA_DIR / "hr" / "hr_data.csv"
 
 
 def load_markdown_documents():
@@ -12,7 +13,6 @@ def load_markdown_documents():
 
     for file_path in DATA_DIR.rglob("*.md"):
         department = file_path.parent.name
-
         content = file_path.read_text(encoding="utf-8")
 
         documents.append(
@@ -26,8 +26,9 @@ def load_markdown_documents():
     return documents
 
 
-def load_hr_csv(csv_path: str):
-    df = pd.read_csv(csv_path)
+def load_hr_csv(csv_path: str = None):
+    target_path = Path(csv_path) if csv_path else HR_CSV_PATH
+    df = pd.read_csv(target_path)
 
     documents = []
 

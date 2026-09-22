@@ -1,8 +1,9 @@
+from pathlib import Path
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-
-CHROMA_PATH = "./chroma_db"
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+CHROMA_PATH = str(BASE_DIR / "chroma_db")
 COLLECTION_NAME = "finsolve_documents"
 
 

@@ -1,4 +1,12 @@
 import os
+import sys
+from pathlib import Path
+
+# Add repository root to sys.path so 'app.*' imports work on Streamlit Community Cloud
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import requests
 import streamlit as st
 from app.services.auth_service import users_db
@@ -177,92 +185,95 @@ if not st.session_state.authenticated:
 
     st.stop()
 
+else:
+    # -----------------------------
+    # Authenticated Sidebar
+    # -----------------------------
 
-# -----------------------------
-# Authenticated Sidebar
-# -----------------------------
+    role_display = (st.session_state.role or "GUEST").upper()
+    username_display = st.session_state.username or "Guest"
 
-with st.sidebar:
-    st.title("🛡️ GuardRAG")
-    st.caption("Enterprise Knowledge Base")
-    st.divider()
+    with st.sidebar:
+        st.title("🛡️ GuardRAG")
+        st.caption("Enterprise Knowledge Base")
+        st.divider()
 
-    st.success(f"**Logged in as:** `{st.session_state.username}`")
-    st.info(f"**Assigned Role:** `{st.session_state.role.upper()}`")
+        st.success(f"**Logged in as:** `{username_display}`")
+        st.info(f"**Assigned Role:** `{role_display}`")
 
-    st.write("**Allowed Data Partitions:**")
-    for department in st.session_state.departments:
-        st.markdown(f"- 📁 `{department}`")
+        st.write("**Allowed Data Partitions:**")
+        for department in st.session_state.departments:
+            st.markdown(f"- 📁 `{department}`")
 
-    st.divider()
+        st.divider()
 
-    if st.button("🧹 Clear Chat History", use_container_width=True):
-        st.session_state.messages = []
-        st.rerun()
+        if st.button("🧹 Clear Chat History", use_container_width=True):
+            st.session_state.messages = []
+            st.rerun()
 
-    if st.button("🚪 Logout", use_container_width=True):
-        for key in ["authenticated", "username", "password", "role", "departments", "messages"]:
-            st.session_state[key] = (
-                False if key == "authenticated"
-                else None if key in ["username", "password", "role"]
-                else []
-            )
-        st.rerun()
+        if st.button("🚪 Logout", use_container_width=True):
+            for key in ["authenticated", "username", "password", "role", "departments", "messages"]:
+                st.session_state[key] = (
+                    False if key == "authenticated"
+                    else None if key in ["username", "password", "role"]
+                    else []
+                )
+            st.rerun()
 
 
-# -----------------------------
-# Main Chat Interface
-# -----------------------------
+    # -----------------------------
+    # Main Chat Interface
+    # -----------------------------
 
-st.title("💬 Authorized Assistant")
-st.caption(
-    f"Querying company knowledge base with **{st.session_state.role.upper()}** permissions."
-)
+    st.title("💬 Authorized Assistant")
+    st.caption(
+        f"Querying company knowledge base with **{role_display}** permissions."
+    )
 
-# Display chat history
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    # Display chat history
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-        if message.get("sources"):
-            with st.expander("📑 Verified Source Citations"):
-                for source in message["sources"]:
-                    st.markdown(
-                        f"- 📄 **Document:** `{source['source']}` | **Department:** `{source['department']}` | **Chunk:** `{source['chunk_id']}`"
-                    )
-
-# Chat input
-prompt = st.chat_input("Ask a question about internal documents...")
-
-if prompt:
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        with st.spinner("Retrieving authorized documents & generating answer..."):
-            result = ask_question(
-                username=st.session_state.username,
-                password=st.session_state.password,
-                message=prompt,
-                role=st.session_state.role,
-            )
-
-        if result:
-            st.markdown(result["answer"])
-            sources = result.get("sources", [])
-
-            if sources:
+            if message.get("sources"):
                 with st.expander("📑 Verified Source Citations"):
-                    for source in sources:
+                    for source in message["sources"]:
                         st.markdown(
                             f"- 📄 **Document:** `{source['source']}` | **Department:** `{source['department']}` | **Chunk:** `{source['chunk_id']}`"
                         )
 
-            st.session_state.messages.append(
-                {
-                    "role": "assistant",
-                    "content": result["answer"],
-                    "sources": sources,
-                }
-            )
+    # Chat input
+    prompt = st.chat_input("Ask a question about internal documents...")
+
+    if prompt:
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Retrieving authorized documents & generating answer..."):
+                result = ask_question(
+                    username=st.session_state.username,
+                    password=st.session_state.password,
+                    message=prompt,
+                    role=st.session_state.role,
+                )
+
+            if result:
+                st.markdown(result["answer"])
+                sources = result.get("sources", [])
+
+                if sources:
+                    with st.expander("📑 Verified Source Citations"):
+                        for source in sources:
+                            st.markdown(
+                                f"- 📄 **Document:** `{source['source']}` | **Department:** `{source['department']}` | **Chunk:** `{source['chunk_id']}`"
+                            )
+
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": result["answer"],
+                        "sources": sources,
+                    }
+                )
