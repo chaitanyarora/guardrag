@@ -142,15 +142,15 @@ guardrag/
 ### 2. Clone and Setup Environment
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/GuardRAG.git
-cd GuardRAG
+git clone https://github.com/chaitanyarora/guardrag.git
+cd guardrag
 
 # Create and activate virtual environment
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install fastapi[standard] streamlit chromadb sentence-transformers langchain-text-splitters pandas openai ollama python-dotenv
+pip install -r requirements.txt
 ```
 
 ### 3. Configure Environment Variables
